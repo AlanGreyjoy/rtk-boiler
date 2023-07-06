@@ -2,6 +2,8 @@
 // ** This is just a fast and dirty example, not a full implementation!!!
 // ** I normally store these in /src/store/api/NameOfApiService.js
 // ** I then import them into /src/store/index.js
+//
+// ** This is complete with a very basic React Hook Form example using RTK Query and Yup for validation
 
 //#region RTK-QUERY-EXAMPLE.js------------------------------------------------------------------------------------------------
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -93,6 +95,8 @@ import { useGetUsersQuery, useGetUserByIdQuery } from "./RTK-QUERY-EXAMPLE.js";
 // ** https://react-hook-form.com/
 // ** Very basic usage, just to show how to use it with RTK Query
 import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const UsersTable = () => {
   const { data, error, isLoading } = useGetUsersQuery();
@@ -129,14 +133,17 @@ const UsersTable = () => {
       firstName: "",
       lastName: "",
     },
+    resolver: yupResolver(
+      yup.object().shape({
+        firstName: yup.string().required(),
+        lastName: yup.string().required(),
+      })
+    ),
   });
 
-  const handleCreateUser = async () => {
-    const data = {
-      firstName: "John",
-      lastName: "Doe",
-    };
-
+  const handleCreateUser = async (data) => {
+    // ** After a successful POST, RTK Query will automatically refetch the data for you and cache it!
+    // ** As long as you are importing the same endpoint. ie: useGetUsersQuery
     await createUser(data)
       .unwrap()
       .then((res) => console.log(res))
@@ -150,6 +157,7 @@ const UsersTable = () => {
       <div>
         <form onSubmit={handleSubmit(handleCreateUser)}>
           <div>
+            {/* First Name */}
             <label htmlFor='firstName'>First Name</label>
             <Controller
               name='firstName'
@@ -165,9 +173,10 @@ const UsersTable = () => {
               )}
             />
             {errors.firstName && (
-              <div className='invalid-feedback'>First Name is required</div>
+              <div className='invalid-feedback'>{errors.firstName}</div>
             )}
 
+            {/* Last Name */}
             <label htmlFor='lastName'>Last Name</label>
             <Controller
               name='lastName'
@@ -183,15 +192,17 @@ const UsersTable = () => {
               )}
             />
             {errors.lastName && (
-              <div className='invalid-feedback'>Last Name is required</div>
+              <div className='invalid-feedback'>{errors.lastName}</div>
             )}
 
+            {/* Submit Button */}
             <button type='submit' disabled={createUserIsLoading}>
               {createUserIsLoading ? "Loading..." : "Create User"}
             </button>
           </div>
         </form>
       </div>
+
       {/* Users table */}
       <div>
         {usersIsLoading && <div>Loading...</div>}
