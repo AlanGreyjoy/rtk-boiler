@@ -22,7 +22,7 @@ export const usersApi = createApi({
     },
   }),
 
-  tagTypes: ["User"],
+  tagTypes: ["User"], // ** Define the tagTypes for invalidating the cache
 
   endpoints: (builder) => ({
     // ** Get All Users
@@ -31,7 +31,7 @@ export const usersApi = createApi({
         url: `/users`,
         method: "GET",
       }),
-      providesTags: ["User"],
+      providesTags: ["User"], // ** Provide the tagTypes for invalidating the cache
     }),
 
     // ** Get a User by Id
@@ -49,7 +49,7 @@ export const usersApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User"], // ** This is used for invalidating the cache on anything that uses the "User" tagType
     }),
 
     // ** Update a User
@@ -162,7 +162,6 @@ const UsersTable = () => {
             <Controller
               name='firstName'
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <input
                   {...field}
@@ -181,7 +180,6 @@ const UsersTable = () => {
             <Controller
               name='lastName'
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <input
                   {...field}
